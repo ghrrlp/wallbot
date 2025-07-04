@@ -1,0 +1,14 @@
+[package]
+publish = false
+name = "wallbot"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+anyhow = { version = "1.0.98", features = ["backtrace"] }
+dotenv = "0.15.0"
+env_logger = "0.11.8"
+image = { version = "0.25.6", default-features = false, features = ["png", "rayon"] }
+log = "0.4.27"
+serenity = "0.12.4"
+tokio = { version = "1.46.0", features = ["fs", "macros", "net", "parking_lot", "rt-multi-thread"] }
