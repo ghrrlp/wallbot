@@ -1,52 +1,20 @@
-use std::collections::HashMap;
-
 use serenity::{
     async_trait,
     model::{
         channel::{Channel, Message},
-        id::UserId,
         gateway::Ready,
         permissions::Permissions,
-        user::CurrentUser,
     },
     prelude::*,
 };
 use tokio::sync::RwLock;
 
-pub struct BotIdentity {
-    pub user: CurrentUser,
-    pub min_perm: Permissions,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct BotInviteLink {
-    pub user_id: UserId,
-    pub perm_bits: u64,
-}
-
-impl BotIdentity {
-    pub fn invite_link(&self) -> BotInviteLink {
-        BotInviteLink {
-            user_id: self.user.id,
-            perm_bits: self.min_perm.bits(),
-        }
-    }
-}
-
-impl std::fmt::Display for BotInviteLink {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "https://discord.com/oauth2/authorize?client_id={}&permissions={}&integration_type=0&scope=bot",
-            self.user_id,
-            self.perm_bits,
-        )
-    }
-}
+mod bot_identity;
+use bot_identity::BotIdentity;
 
 pub struct Handler {
     opts: HandlerOptions,
-    bot_identity: RwLock<Option<BotIdentity>>,
+    botself: RwLock<Option<BotIdentity>>,
 }
 
 #[derive(Clone, Debug)]
@@ -59,7 +27,7 @@ impl Handler {
     pub fn new(opts: &HandlerOptions) -> Self {
         Self {
             opts: opts.clone(),
-            bot_identity: RwLock::new(None),
+            botself: RwLock::new(None),
         }
     }
 
@@ -106,6 +74,6 @@ impl EventHandler for Handler {
             min_perm: self.opts.min_perm,
         };
         log::info!("Invite via {}", new_botself.invite_link());
-        self.bot_identity.write().await.replace(new_botself);
+        self.botself.write().await.replace(new_botself);
     }
 }
