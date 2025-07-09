@@ -4,4 +4,5 @@
 Session*.vim
 
 .env
+*.sqlite
 /target
